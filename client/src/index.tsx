@@ -11,8 +11,11 @@ import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 
 import axios from "axios";
 
+export const isDevelopment =
+  !process.env.NODE_ENV || process.env.NODE_ENV === "development";
+
 const axiosDefaultConfig = {
-  baseURL: "http://localhost:5000",
+  baseURL: isDevelopment ? "http://localhost:5000" : "",
 };
 
 export const axiosInst = axios.create(axiosDefaultConfig);

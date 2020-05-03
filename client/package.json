@@ -23,6 +23,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "copy-local": "cd build && cp -r . ../../server/static",
+    "copy-remote": "cd .. && rsync -a server root@byroni.us:/root/news-app",
+    "deploy": "yarn build && yarn copy-local && yarn copy-remote",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

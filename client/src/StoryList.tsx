@@ -52,8 +52,6 @@ export class StoryList extends React.Component<{}, StoryListState> {
               <p key={story.url}>
                 <Link to={`/story/${encodeURIComponent(story.url)}`}>
                   <b>{story.title}</b>
-                  <br />
-                  {story.url}|{story.id}
                 </Link>
               </p>
             </div>
