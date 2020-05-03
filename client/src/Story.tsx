@@ -26,7 +26,7 @@ export class StoryComp extends React.Component<StoryProps, StoryState> {
   async componentDidMount() {
     const id = this.props.match.params.id;
 
-    const story = await axiosInst.get(`/api/story/${id}`);
+    const story = await axiosInst.post("/api/story", { url: id });
 
     console.log("stoyr res", story);
 

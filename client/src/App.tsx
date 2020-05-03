@@ -9,7 +9,7 @@ import { StoryComp } from "./Story";
 export class App extends React.Component {
   render() {
     return (
-      <div>
+      <div className="main">
         <Switch>
           <Route path="/story/:id" component={StoryComp} />
           <Route path="/">

@@ -14,6 +14,7 @@ interface Feed {
   url: string;
 }
 
+const FEED_STORAGE_NAME = "FEED_LIST";
 export class AddFeed extends React.Component<{}, AddFeedState> {
   constructor(props: {}) {
     super(props);
@@ -24,14 +25,13 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
     };
   }
 
-  async componentDidMount() {
-    await this.updateFeeds();
+  componentDidMount() {
+    this.loadFeedsFromLocalStorage();
   }
 
-  private async updateFeeds() {
-    const feeds = await axiosInst.get("/api/feeds");
-    console.log("feeds", feeds);
-    this.setState({ allFeeds: feeds.data });
+  loadFeedsFromLocalStorage() {
+    const items = getCurrentFeeds();
+    this.setState({ allFeeds: items });
   }
 
   render() {
@@ -71,23 +71,35 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
     );
   }
   async deleteFeed(feed: Feed) {
-    console.log("delete feed");
+    const newFeeds = this.state.allFeeds.filter((f) => f.url !== feed.url);
 
-    const result = await axiosInst.post("/api/delete_feed", feed);
-
-    console.log("delete result", result);
-
-    this.updateFeeds();
+    this.saveAndUpdateState(newFeeds);
   }
   async addFeedUrl() {
     // need to post out
-    console.log("post to server");
 
-    const result = await axiosInst.post("/api/add_feed", {
-      url: this.state.url,
-    });
-    console.log("result", result);
+    const newFeedsList = this.state.allFeeds.concat({ url: this.state.url });
 
-    this.updateFeeds();
+    this.saveAndUpdateState(newFeedsList);
   }
+
+  private saveAndUpdateState(newFeedsList: Feed[]) {
+    localStorage.setItem(FEED_STORAGE_NAME, JSON.stringify(newFeedsList));
+    this.setState({ allFeeds: newFeedsList });
+  }
+}
+
+export function getCurrentFeeds() {
+  const _items = localStorage.getItem(FEED_STORAGE_NAME);
+
+  if (_items === null) {
+    return [];
+  }
+
+  //http://feeds.foxnews.com/foxnews/latest
+
+  // http://rss.cnn.com/rss/cnn_topstories.rss
+
+  const items = JSON.parse(_items) as Feed[];
+  return items;
 }

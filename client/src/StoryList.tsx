@@ -3,6 +3,7 @@ import React from "react";
 
 import { axiosInst } from ".";
 import { Link } from "react-router-dom";
+import { getCurrentFeeds } from "./AddFeed";
 
 interface StoryListState {
   stories: Story[];
@@ -15,6 +16,7 @@ export interface Story {
   id: string;
 }
 
+const LOCAL_STORIES = "STORIES";
 export class StoryList extends React.Component<{}, StoryListState> {
   constructor(props: {}) {
     super(props);
@@ -22,17 +24,19 @@ export class StoryList extends React.Component<{}, StoryListState> {
     this.state = { stories: [] };
   }
   componentDidMount() {
-    this.refreshStories();
+    const _stories = localStorage.getItem(LOCAL_STORIES);
+    if (_stories === null) {
+      return;
+    }
+    const stories = JSON.parse(_stories);
+
+    this.setState({ stories });
   }
   render() {
     return (
       <div>
         <H2>story list</H2>
-        <Button
-          text="refresh stories"
-          icon="refresh"
-          onClick={() => this.refreshStories()}
-        />
+
         <Button
           text="refresh feed content"
           onClick={() => this.refreshFeedContents()}
@@ -40,34 +44,40 @@ export class StoryList extends React.Component<{}, StoryListState> {
 
         <div>
           {this.state.stories.map((story) => (
-            <p key={story.url}>
-              <Link to={`/story/${story.id}`}>
-                <b>{story.title}</b>
-                <br />
-                {story.url}|{story.id}
-              </Link>
-            </p>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <img
+                src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${story.url}`}
+                style={{ flexGrow: 0 }}
+              />
+              <p key={story.url}>
+                <Link to={`/story/${encodeURIComponent(story.url)}`}>
+                  <b>{story.title}</b>
+                  <br />
+                  {story.url}|{story.id}
+                </Link>
+              </p>
+            </div>
           ))}
         </div>
       </div>
     );
   }
   async refreshFeedContents() {
-    const feedRes = await axiosInst.post("/api/feed_update", {});
+    const feeds = getCurrentFeeds();
+
+    const feedRes = await axiosInst.post("/api/feed_update", { feeds });
 
     console.log(feedRes);
 
     // it's back, update stories
 
-    this.refreshStories();
+    const stories = feedRes.data;
+
+    this.saveAndUpdateState(stories);
   }
-  async refreshStories() {
-    const storyRes = await axiosInst.get("/api/stories");
 
-    console.log("stories", storyRes);
-
-    const stories = storyRes.data as Story[];
-
+  private saveAndUpdateState(stories: any) {
+    localStorage.setItem(LOCAL_STORIES, JSON.stringify(stories));
     this.setState({ stories });
   }
 }

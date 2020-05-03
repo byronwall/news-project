@@ -8,13 +8,14 @@ from tinydb import TinyDB, Query
 
 from datetime import datetime
 import feedparser
+import urllib.parse
 
 
 def ticks():
     return (datetime.now() - datetime(1, 1, 1)).total_seconds() * 10000000
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="")
 CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
@@ -23,24 +24,28 @@ db_feeds = TinyDB("feeds.json")
 db_stories = TinyDB("stories.json")
 
 
-@app.route("/api/story/<id>")
-def index(id):
+@app.route("/")
+def root():
+    return app.send_static_file("index.html")
 
-    print("get story", id)
+
+@app.route("/api/story", methods=["POST"])
+def story():
+    print("made it here")
     # this needs to return X stories
 
-    Story = Query()
+    url = request.json["url"]
+    url = urllib.parse.unquote(url)
 
-    item = db_stories.search(Story.id == id)
-
-    print("match?", item)
-    url = item[0]["url"]
+    print("get story", url)
     article = newspaper.Article(url)
 
     article.download()
     article.parse()
 
-    data = {"title": article.title, "text": article.text, "url": url, "id": id}
+    data = {"title": article.title, "text": article.text, "url": url}
+
+    print("data", data)
 
     return jsonify(data)
 
@@ -55,51 +60,10 @@ def stories():
     return jsonify(data)
 
 
-@app.route("/api/feeds")
-def get_feeds():
-    print("get feeds")
-
-    feed = db_feeds.all()
-
-    return jsonify(feed)
-
-
-@app.route("/api/add_feed", methods=["POST"])
-def add_feed():
-
-    print("add feed", request.json)
-
-    url = request.json["url"]
-
-    db_feeds.insert({"url": url})
-
-    # build some links and add to database
-
-    # process a set of RSS feeds
-
-    return jsonify({"result": True})
-
-
-@app.route("/api/delete_feed", methods=["POST"])
-def delete_feed():
-
-    print("delete feed", request.json)
-
-    url = request.json["url"]
-
-    Feed = Query()
-
-    db_feeds.remove(Feed.url == url)
-
-    # build some links and add to database
-
-    # process a set of RSS feeds
-
-    return jsonify({"result": True})
-
-
 @app.route("/api/feed_update", methods=["POST"])
 def update():
+
+    all_feeds = request.json["feeds"]
 
     # build some links and add to database
 
@@ -107,21 +71,19 @@ def update():
 
     # get all of the feeds
 
-    db_stories.purge()
-
-    all_feeds = db_feeds.all()
+    all_stories = []
 
     for feed in all_feeds:
-        print("process feed", feed)
+
         d = feedparser.parse(feed["url"])
 
         for entry in d.entries:
             print("process entry", entry)
-            db_stories.insert(
+            all_stories.append(
                 {"url": entry.link, "title": entry.title, "id": str(ticks())}
             )
 
-    return jsonify({"result": True})
+    return jsonify(all_stories)
 
 
 if __name__ == "__main__":
