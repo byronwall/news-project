@@ -1,6 +1,6 @@
 {
   "name": "news_reader",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@blueprintjs/core": "^3.26.0",
@@ -9,11 +9,13 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "@types/jest": "^24.0.0",
+    "@types/lodash": "^4.14.150",
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
     "@types/react-router-dom": "^5.1.5",
     "axios": "^0.19.2",
+    "lodash": "^4.17.15",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
@@ -27,7 +29,9 @@
     "copy-remote": "cd .. && rsync -a server root@byroni.us:/root/news-app",
     "deploy": "yarn build && yarn copy-local && yarn copy-remote",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "npx concurrently \"yarn start\" \"yarn server\"",
+    "server": "cd ../server && python3 app.py"
   },
   "eslintConfig": {
     "extends": "react-app"
