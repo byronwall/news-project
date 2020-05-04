@@ -1,8 +1,6 @@
-import { Button, H2, InputGroup } from "@blueprintjs/core";
+import { Button, H2, H3, InputGroup } from "@blueprintjs/core";
 import { handleStringChange } from "@blueprintjs/docs-theme";
 import React from "react";
-
-import { axiosInst } from ".";
 
 interface AddFeedState {
   url: string;
@@ -37,6 +35,7 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
   render() {
     return (
       <div>
+        <H2>feed settings</H2>
         <div className="flex">
           <b>add feed</b>
           <InputGroup
@@ -53,8 +52,25 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
             intent="primary"
           />
         </div>
+        <div className="flex">
+          <b>quick add</b>
+          <Button
+            text="CNN"
+            onClick={() =>
+              this.addFeedUrl("http://rss.cnn.com/rss/cnn_topstories.rss")
+            }
+            minimal
+          />
+          <Button
+            text="Fox News"
+            onClick={() =>
+              this.addFeedUrl("http://feeds.foxnews.com/foxnews/latest")
+            }
+            minimal
+          />
+        </div>
         <div>
-          <H2>all feeds</H2>
+          <H3>all feeds</H3>
           {this.state.allFeeds.map((feed) => (
             <p key={feed.url}>
               <Button
@@ -70,15 +86,15 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
       </div>
     );
   }
-  async deleteFeed(feed: Feed) {
+
+  deleteFeed(feed: Feed) {
     const newFeeds = this.state.allFeeds.filter((f) => f.url !== feed.url);
 
     this.saveAndUpdateState(newFeeds);
   }
-  async addFeedUrl() {
+  addFeedUrl(url = this.state.url) {
     // need to post out
-
-    const newFeedsList = this.state.allFeeds.concat({ url: this.state.url });
+    const newFeedsList = this.state.allFeeds.concat({ url });
 
     this.saveAndUpdateState(newFeedsList);
   }

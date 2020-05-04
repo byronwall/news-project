@@ -3,7 +3,7 @@ import React from "react";
 
 import { axiosInst } from ".";
 import { Link } from "react-router-dom";
-import { getCurrentFeeds } from "./AddFeed";
+import { getCurrentFeeds, AddFeed } from "./AddFeed";
 
 interface StoryListState {
   stories: Story[];
@@ -33,18 +33,18 @@ export class StoryList extends React.Component<{}, StoryListState> {
     this.setState({ stories });
   }
   render() {
+    if (this.state.stories.length === 0) {
+      return <div>refresh stories or add a feed to get started</div>;
+    }
+
     return (
       <div>
-        <H2>story list</H2>
-
-        <Button
-          text="refresh feed content"
-          onClick={() => this.refreshFeedContents()}
-        />
-
         <div>
           {this.state.stories.map((story) => (
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div
+              style={{ display: "flex", alignItems: "center" }}
+              key={story.url}
+            >
               <img
                 src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${story.url}`}
                 style={{ flexGrow: 0 }}

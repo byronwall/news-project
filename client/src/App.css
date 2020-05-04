@@ -2,9 +2,31 @@
   display: flex;
 }
 
+.main {
+  padding: 4px;
+}
+
+#nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 @media only screen and (min-width: 800px) {
   .main {
     max-width: 800px;
     margin-left: calc(50% - 400px);
+    padding: 8px;
+  }
+
+  #nav {
+    position: fixed;
+    left: calc(50% - 400px - 50px);
+    top: 12px;
+    width: 40px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }

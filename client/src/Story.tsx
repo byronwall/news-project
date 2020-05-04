@@ -1,14 +1,18 @@
+import { H3 } from "@blueprintjs/core";
 import React from "react";
-import { H2, H3 } from "@blueprintjs/core";
 import { RouteComponentProps } from "react-router-dom";
+
 import { axiosInst } from ".";
+import { ReaderSettings } from "./ReaderSettings";
 import { Story } from "./StoryList";
 
 interface StoryParams {
   id: string;
 }
 
-interface _StoryProps {}
+interface _StoryProps {
+  readerSettings: ReaderSettings;
+}
 
 interface StoryState {
   loadedStory: Story | undefined;
@@ -43,7 +47,12 @@ export class StoryComp extends React.Component<StoryProps, StoryState> {
             <H3>{this.state.loadedStory.title}</H3>
 
             {this.state.loadedStory?.text.split("\n").map((line, index) => (
-              <p key={index}>{line}</p>
+              <p
+                key={index}
+                style={{ fontSize: this.props.readerSettings.fontSize }}
+              >
+                {line}
+              </p>
             ))}
           </>
         )}
