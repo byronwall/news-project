@@ -1,17 +1,13 @@
 import "./App.css";
 
-import { Button, Card, Popover, Position } from "@blueprintjs/core";
+import { Button } from "@blueprintjs/core";
 import React, { ReactNode } from "react";
-import { Link, Route, Switch } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 
-import { AddFeed } from "./AddFeed";
-import {
-  createDefaultReaderSettings,
-  ReaderSettings,
-  ReaderSettingsOverlay,
-} from "./ReaderSettings";
+import { createDefaultReaderSettings, ReaderSettings } from "./ReaderSettings";
 import { StoryComp } from "./Story";
 import { StoryList } from "./StoryList";
+import { Navigation } from "./Navigation";
 
 interface AppState {
   readerSettings: ReaderSettings;
@@ -67,33 +63,6 @@ export class App extends React.Component<{}, AppState> {
             <StoryList ref={this.storyList} />
           </Route>
         </Switch>
-      </div>
-    );
-  }
-}
-
-interface NavigationProps {
-  refreshButton: ReactNode;
-  onNewSettings(newSettings: ReaderSettings): void;
-}
-
-export class Navigation extends React.Component<NavigationProps> {
-  render() {
-    return (
-      <div id="nav">
-        <Link to="/">
-          <img src="/android-chrome-192x192.png" height={32} width={32} />
-        </Link>
-
-        {this.props.refreshButton}
-
-        <Popover position={Position.RIGHT}>
-          <Button icon="cog" minimal />
-          <Card>
-            <ReaderSettingsOverlay onNewSettings={this.props.onNewSettings} />
-            <AddFeed />
-          </Card>
-        </Popover>
       </div>
     );
   }
