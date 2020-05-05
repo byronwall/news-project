@@ -4,7 +4,11 @@ import { Button } from "@blueprintjs/core";
 import React, { ReactNode } from "react";
 import { Route, Switch } from "react-router-dom";
 
-import { createDefaultReaderSettings, ReaderSettings } from "./ReaderSettings";
+import {
+  createDefaultReaderSettings,
+  ReaderSettings,
+  getCurrentReaderSettings,
+} from "./ReaderSettings";
 import { StoryComp } from "./Story";
 import { StoryList } from "./StoryList";
 import { Navigation } from "./Navigation";
@@ -21,7 +25,7 @@ export class App extends React.Component<{}, AppState> {
 
     this.storyList = React.createRef();
 
-    this.state = { readerSettings: createDefaultReaderSettings() };
+    this.state = { readerSettings: getCurrentReaderSettings() };
   }
 
   refreshFeedContents() {

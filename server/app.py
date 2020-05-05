@@ -9,6 +9,8 @@ from tinydb import TinyDB, Query
 from datetime import datetime
 import feedparser
 import urllib.parse
+import time
+import calendar
 
 
 def ticks():
@@ -78,12 +80,37 @@ def update():
         d = feedparser.parse(feed["url"])
 
         for entry in d.entries:
-            print("process entry", entry)
+
+            print(entry.keys())
+
+            timestamp = entry.get("published_parsed")
+            raw_timestamp = timestamp
+
+            if timestamp is None:
+                timestamp = 0
+            else:
+                timestamp = calendar.timegm(timestamp)
+
             all_stories.append(
-                {"url": entry.link, "title": entry.title, "id": str(ticks())}
+                {
+                    "url": entry.link,
+                    "title": entry.title,
+                    "id": str(ticks()),
+                    "date": timestamp,
+                    "raw_date": raw_timestamp,
+                    "raw_data": entry
+                }
             )
 
     return jsonify(all_stories)
+
+
+def datetime_from_utc_to_local(utc_datetime):
+    now_timestamp = time.time()
+    offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(
+        now_timestamp
+    )
+    return utc_datetime + offset
 
 
 if __name__ == "__main__":

@@ -4,6 +4,8 @@ import React from "react";
 import { axiosInst } from ".";
 import { Link } from "react-router-dom";
 import { getCurrentFeeds, AddFeed } from "./AddFeed";
+import { timeSince } from "./helpers";
+import _ from "lodash";
 
 interface StoryListState {
   stories: Story[];
@@ -14,6 +16,7 @@ export interface Story {
   text: string;
   url: string;
   id: string;
+  date: any;
 }
 
 const LOCAL_STORIES = "STORIES";
@@ -28,9 +31,12 @@ export class StoryList extends React.Component<{}, StoryListState> {
     if (_stories === null) {
       return;
     }
-    const stories = JSON.parse(_stories);
+    const stories = JSON.parse(_stories) as Story[];
 
-    this.setState({ stories });
+    // sory by date, newest first
+    const storiesSorted = _.sortBy(stories, (c) => -c.date);
+
+    this.setState({ stories: storiesSorted });
   }
   render() {
     if (this.state.stories.length === 0) {
@@ -52,6 +58,7 @@ export class StoryList extends React.Component<{}, StoryListState> {
               <p key={story.url}>
                 <Link to={`/story/${encodeURIComponent(story.url)}`}>
                   <b>{story.title}</b>
+                  <span> {timeSince(story.date)}</span>
                 </Link>
               </p>
             </div>
