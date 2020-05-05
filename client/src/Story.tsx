@@ -1,4 +1,4 @@
-import { H3 } from "@blueprintjs/core";
+import { H3, Icon } from "@blueprintjs/core";
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 
@@ -44,7 +44,12 @@ export class StoryComp extends React.Component<StoryProps, StoryState> {
         {this.state.loadedStory === undefined && <p>loading story...</p>}
         {this.state.loadedStory !== undefined && (
           <>
-            <H3>{this.state.loadedStory.title}</H3>
+            <a
+              href={decodeURIComponent(this.props.match.params.id)}
+              target="blank"
+            >
+              <H3>{this.state.loadedStory.title}</H3>
+            </a>
 
             {this.state.loadedStory?.text.split("\n").map((line, index) => (
               <p

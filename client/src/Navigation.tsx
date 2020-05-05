@@ -22,7 +22,9 @@ export class Navigation extends React.Component<NavigationProps> {
 
         <Popover position={Position.RIGHT}>
           <Button icon="cog" minimal />
-          <Card>
+          <Card
+            style={{ maxWidth: "80vw", maxHeight: "80vh", overflow: "auto" }}
+          >
             <ReaderSettingsOverlay onNewSettings={this.props.onNewSettings} />
             <AddFeed />
           </Card>

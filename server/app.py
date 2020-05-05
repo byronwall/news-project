@@ -81,7 +81,7 @@ def update():
 
         for entry in d.entries:
 
-            print(entry.keys())
+            # print(entry.keys())
 
             timestamp = entry.get("published_parsed")
             raw_timestamp = timestamp
@@ -98,7 +98,7 @@ def update():
                     "id": str(ticks()),
                     "date": timestamp,
                     "raw_date": raw_timestamp,
-                    "raw_data": entry
+                    "raw_data": entry,
                 }
             )
 

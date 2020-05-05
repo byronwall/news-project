@@ -1,6 +1,7 @@
 import { Button, H2, H3, InputGroup } from "@blueprintjs/core";
 import { handleStringChange } from "@blueprintjs/docs-theme";
 import React from "react";
+import _ from "lodash";
 
 interface AddFeedState {
   url: string;
@@ -33,6 +34,25 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
   }
 
   render() {
+    const quickFeeds = {
+      CNN: "http://rss.cnn.com/rss/cnn_topstories.rss",
+      "Fox News": "http://feeds.foxnews.com/foxnews/latest",
+      Reuters: "http://feeds.reuters.com/reuters/topNews",
+      Economist: "https://www.economist.com/united-states/rss.xml",
+      Reddit: "https://www.reddit.com/r/worldnews/.rss",
+      BuzzFeed: "https://www.buzzfeed.com/world.xml",
+      "Al Jazeera": "http://www.aljazeera.com/xml/rss/all.xml",
+      Guardian: "https://www.theguardian.com/world/rss",
+      "Washington Post": "http://feeds.washingtonpost.com/rss/world",
+      NPR: "http://www.npr.org/rss/rss.php?id=1004",
+      Vox: "https://www.vox.com/rss/world/index.xml",
+      CBC: "http://www.cbc.ca/cmlink/rss-world",
+      "LA Times": "https://www.latimes.com/world/rss2.0.xml",
+      "Indy Star": "http://rssfeeds.indystar.com/indystar/todaystopstories",
+      Breitbart: "http://feeds.feedburner.com/breitbart",
+      Politico: "http://www.politico.com/rss/politicopicks.xml",
+    };
+
     return (
       <div>
         <H2>feed settings</H2>
@@ -52,22 +72,23 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
             intent="primary"
           />
         </div>
-        <div className="flex">
+        <div className="flex" style={{ flexWrap: "wrap" }}>
           <b>quick add</b>
+
           <Button
-            text="CNN"
-            onClick={() =>
-              this.addFeedUrl("http://rss.cnn.com/rss/cnn_topstories.rss")
-            }
-            minimal
+            text="add all"
+            intent="primary"
+            onClick={() => this.addFeedsUrl(Object.values(quickFeeds))}
           />
-          <Button
-            text="Fox News"
-            onClick={() =>
-              this.addFeedUrl("http://feeds.foxnews.com/foxnews/latest")
-            }
-            minimal
-          />
+
+          {_.map(quickFeeds, (url, site) => (
+            <Button
+              key={site}
+              text={site}
+              onClick={() => this.addFeedUrl(url)}
+              minimal
+            />
+          ))}
         </div>
         <div>
           <H3>all feeds</H3>
@@ -95,6 +116,15 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
   addFeedUrl(url = this.state.url) {
     // need to post out
     const newFeedsList = this.state.allFeeds.concat({ url });
+
+    this.saveAndUpdateState(newFeedsList);
+  }
+
+  addFeedsUrl(urls: string[]) {
+    // need to post out
+    const newFeedsList = this.state.allFeeds.concat(
+      urls.map((c) => ({ url: c }))
+    );
 
     this.saveAndUpdateState(newFeedsList);
   }

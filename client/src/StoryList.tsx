@@ -1,11 +1,10 @@
-import { Button, H2 } from "@blueprintjs/core";
+import _ from "lodash";
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { axiosInst } from ".";
-import { Link } from "react-router-dom";
-import { getCurrentFeeds, AddFeed } from "./AddFeed";
+import { getCurrentFeeds } from "./AddFeed";
 import { timeSince } from "./helpers";
-import _ from "lodash";
 
 interface StoryListState {
   stories: Story[];
@@ -31,12 +30,11 @@ export class StoryList extends React.Component<{}, StoryListState> {
     if (_stories === null) {
       return;
     }
+
+    // these will be sorted
     const stories = JSON.parse(_stories) as Story[];
 
-    // sory by date, newest first
-    const storiesSorted = _.sortBy(stories, (c) => -c.date);
-
-    this.setState({ stories: storiesSorted });
+    this.setState({ stories });
   }
   render() {
     if (this.state.stories.length === 0) {
@@ -81,8 +79,11 @@ export class StoryList extends React.Component<{}, StoryListState> {
     this.saveAndUpdateState(stories);
   }
 
-  private saveAndUpdateState(stories: any) {
-    localStorage.setItem(LOCAL_STORIES, JSON.stringify(stories));
-    this.setState({ stories });
+  private saveAndUpdateState(stories: Story[]) {
+    const storiesSorted = _.sortBy(stories, (c) => -c.date);
+
+    localStorage.setItem(LOCAL_STORIES, JSON.stringify(storiesSorted));
+
+    this.setState({ stories: storiesSorted });
   }
 }
