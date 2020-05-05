@@ -51,6 +51,7 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
       "Indy Star": "http://rssfeeds.indystar.com/indystar/todaystopstories",
       Breitbart: "http://feeds.feedburner.com/breitbart",
       Politico: "http://www.politico.com/rss/politicopicks.xml",
+      "Drudge Report": "https://feedpress.me/drudgereportfeed",
     };
 
     return (
