@@ -1,6 +1,6 @@
 {
   "name": "news_reader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "dependencies": {
     "@blueprintjs/core": "^3.26.0",
@@ -31,7 +31,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "dev": "npx concurrently \"yarn start\" \"yarn server\"",
-    "server": "cd ../server && python3 app.py"
+    "server": "cd .. && source bin/activate && cd server && python3 app.py"
   },
   "eslintConfig": {
     "extends": "react-app"
