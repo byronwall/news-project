@@ -1,3 +1,13 @@
-☐ Create a proper todo list
-
-☐ Show when the stories were last updated
+All Tasks:
+    ☐ Show when the stories were last updated
+    ☐ Cache story text server side (by URL)
+    ☐ Cache feed list server side (refresh every 10 minutes or so)
+    ☐ Consider loading feeds in parallel - useful if large number of them
+    ☐ Store "sets" of feeds on the server/client for quick loading or viewing
+    ☐ Change the favicon for the story to just text in a box - use color as a common marker
+    ☐ Ability to filter the story list by source
+    ☐ Ability to save a story for later?
+    ☐ Ability to give up/down on story?
+    ☐ Figure out best way to remove video and other non-text content
+    ☐ Pull other content from the RSS feed and show in list? -- or use the summary for NLP stuff?
+    ☐ 

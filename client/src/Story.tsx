@@ -1,10 +1,11 @@
-import { H3, Icon } from "@blueprintjs/core";
+import { H3, Icon, Spinner } from "@blueprintjs/core";
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 
 import { axiosInst } from ".";
 import { ReaderSettings } from "./ReaderSettings";
 import { Story } from "./StoryList";
+import { addStoryToReadList } from "./localStorage";
 
 interface StoryParams {
   id: string;
@@ -27,31 +28,48 @@ export class StoryComp extends React.Component<StoryProps, StoryState> {
     this.state = { loadedStory: undefined };
   }
 
+  get storyUrl() {
+    return this.props.match.params.id;
+  }
+
+  get storyUrlClean() {
+    return decodeURIComponent(this.props.match.params.id);
+  }
+
   async componentDidMount() {
-    const id = this.props.match.params.id;
+    const id = this.storyUrl;
 
     const story = await axiosInst.post("/api/story", { url: id });
 
     console.log("stoyr res", story);
 
     this.setState({ loadedStory: story.data });
+
+    // save this url to the read list
+    addStoryToReadList(this.storyUrlClean);
   }
 
   render() {
     console.log(this.props);
+
+    const storyUrl = decodeURIComponent(this.props.match.params.id);
+    const titleText = this.state.loadedStory
+      ? this.state.loadedStory.title
+      : storyUrl;
+
+    const storyText = this.state.loadedStory?.text ?? "";
+
     return (
       <div>
-        {this.state.loadedStory === undefined && <p>loading story...</p>}
-        {this.state.loadedStory !== undefined && (
-          <>
-            <a
-              href={decodeURIComponent(this.props.match.params.id)}
-              target="blank"
-            >
-              <H3>{this.state.loadedStory.title}</H3>
-            </a>
+        <a href={storyUrl} target="blank">
+          <H3>{titleText}</H3>
+        </a>
 
-            {this.state.loadedStory?.text.split("\n").map((line, index) => (
+        {this.state.loadedStory === undefined ? (
+          <Spinner />
+        ) : (
+          <div style={{ wordWrap: "break-word" }}>
+            {storyText.split("\n").map((line, index) => (
               <p
                 key={index}
                 style={{ fontSize: this.props.readerSettings.fontSize }}
@@ -59,7 +77,7 @@ export class StoryComp extends React.Component<StoryProps, StoryState> {
                 {line}
               </p>
             ))}
-          </>
+          </div>
         )}
       </div>
     );

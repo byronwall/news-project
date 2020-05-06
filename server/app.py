@@ -4,7 +4,6 @@ from flask import jsonify
 
 from flask_cors import CORS
 
-from tinydb import TinyDB, Query
 
 from datetime import datetime
 import feedparser
@@ -21,13 +20,11 @@ app = Flask(__name__, static_url_path="")
 CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
-
-db_feeds = TinyDB("feeds.json")
-db_stories = TinyDB("stories.json")
-
+# https%3A%2F%2Fwww.buzzfeednews.com%2Farticle%2Fkarlazabludovsky%2Fcoronavirus-ecuador-guayaquil
 
 @app.route("/")
-def root():
+@app.route("/story/<path:url>")
+def root(url=""):
     return app.send_static_file("index.html")
 
 
@@ -42,22 +39,22 @@ def story():
     print("get story", url)
     article = newspaper.Article(url)
 
-    article.download()
-    article.parse()
+    data = {"title": "error"}
 
-    data = {"title": article.title, "text": article.text, "url": url}
+    # will sometimes get an error on the download step, need to ignore
+    try:
+        article.download()
+        article.parse()
 
-    print("data", data)
+        data = {
+            "title": article.title,
+            "text": article.text,
+            "url": url,
+        }
 
-    return jsonify(data)
-
-
-@app.route("/api/stories")
-def stories():
-
-    # this needs to return X stories
-
-    data = db_stories.all()
+    except:
+        print("error processing page", url, flush=True)
+        pass
 
     return jsonify(data)
 

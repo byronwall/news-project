@@ -1,13 +1,16 @@
-import { Button, Card, Popover, Position } from "@blueprintjs/core";
+import { Button, Card, Popover, Position, Spinner } from "@blueprintjs/core";
 import React, { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { AddFeed } from "./AddFeed";
 import { ReaderSettings, ReaderSettingsOverlay } from "./ReaderSettings";
+import { LOADING_STATE } from "./App";
 
 interface NavigationProps {
-  refreshButton: ReactNode;
+  loadingState: LOADING_STATE;
+
   onNewSettings(newSettings: ReaderSettings): void;
+  onRefreshCommand(): void;
 }
 
 export class Navigation extends React.Component<NavigationProps> {
@@ -18,8 +21,6 @@ export class Navigation extends React.Component<NavigationProps> {
           <img src="/logo192.png" height={32} width={32} />
         </Link>
 
-        {this.props.refreshButton}
-
         <Popover position={Position.RIGHT}>
           <Button icon="cog" minimal />
           <Card
@@ -29,6 +30,19 @@ export class Navigation extends React.Component<NavigationProps> {
             <AddFeed />
           </Card>
         </Popover>
+
+        <div id="refresh">
+          {this.props.loadingState === LOADING_STATE.LOADED ? (
+            <Button
+              icon="refresh"
+              onClick={this.props.onRefreshCommand}
+              intent="primary"
+              minimal
+            />
+          ) : (
+            <Spinner size={30} />
+          )}
+        </div>
       </div>
     );
   }

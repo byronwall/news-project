@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.2 - 2020-05-05 22:06:34
+
+- Wrap a try/catch around article parsing error to prevent server hanging
+- Force word wrap on story text to prevent long URL affecting page width
+- Add a spinner to the refresh button when loading story list
+- Align refresh icon to right edge when in mobile view -- easier single hand access
+- Add indicator to track stories that were read
+
 ## 1.0.1 - 2020-05-04 22:33:04
 
 - Add support for returning the date published and sorting by that
