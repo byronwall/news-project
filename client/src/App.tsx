@@ -7,9 +7,14 @@ import { Route, Switch } from "react-router-dom";
 import { axiosInst } from ".";
 import { getCurrentFeeds } from "./AddFeed";
 import { Navigation } from "./Navigation";
-import { getCurrentReaderSettings, ReaderSettings } from "./ReaderSettings";
+import {
+  getCurrentReaderSettings,
+  ReaderSettings,
+  createDefaultReaderSettings,
+} from "./ReaderSettings";
 import { StoryComp } from "./Story";
 import { Story, StoryList } from "./StoryList";
+import localforage from "localforage";
 
 interface AppState {
   readerSettings: ReaderSettings;
@@ -32,10 +37,18 @@ export class App extends React.Component<{}, AppState> {
     this.storyList = React.createRef();
 
     this.state = {
-      readerSettings: getCurrentReaderSettings(),
-      stories: getSavedStoryList(),
+      readerSettings: createDefaultReaderSettings(),
+      stories: [],
       loadingState: LOADING_STATE.LOADED,
     };
+  }
+
+  async componentDidMount() {
+    const stories = await getSavedStoryList();
+    this.setState({ stories });
+
+    const readerSettings = await getCurrentReaderSettings();
+    this.setState({ readerSettings });
   }
 
   render() {
@@ -67,9 +80,9 @@ export class App extends React.Component<{}, AppState> {
   }
 
   async refreshFeedContents() {
-    const feeds = getCurrentFeeds();
-
     this.setState({ loadingState: LOADING_STATE.LOADING });
+    const feeds = await getCurrentFeeds();
+
     const feedRes = await axiosInst.post("/api/feed_update", { feeds });
 
     console.log(feedRes);
@@ -85,21 +98,22 @@ export class App extends React.Component<{}, AppState> {
   private saveAndUpdateState(stories: Story[]) {
     const storiesSorted = _.sortBy(stories, (c) => -c.date);
 
-    localStorage.setItem(LOCAL_STORIES, JSON.stringify(storiesSorted));
-
     this.setState({ stories: storiesSorted });
+    localforage.setItem(LOCAL_STORIES, storiesSorted);
   }
 }
 
 const LOCAL_STORIES = "STORIES";
-function getSavedStoryList() {
-  const _stories = localStorage.getItem(LOCAL_STORIES);
-  if (_stories === null) {
+async function getSavedStoryList() {
+  try {
+    const stories = await localforage.getItem<Story[]>(LOCAL_STORIES);
+
+    if (stories === null) {
+      return [];
+    }
+
+    return stories;
+  } catch {
     return [];
   }
-
-  // these will be sorted
-  const stories = JSON.parse(_stories) as Story[];
-
-  return stories;
 }

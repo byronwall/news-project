@@ -1,6 +1,7 @@
 import { Button, H2, Icon } from "@blueprintjs/core";
 import _ from "lodash";
 import React from "react";
+import localforage from "localforage";
 
 interface ReaderSettingsOverlayState {
   url: string;
@@ -56,8 +57,8 @@ export class ReaderSettingsOverlay extends React.Component<
     }
   }
 
-  loadFeedsFromLocalStorage() {
-    const items = getCurrentReaderSettings();
+  async loadFeedsFromLocalStorage() {
+    const items = await getCurrentReaderSettings();
     this.setState({ settings: items });
   }
 
@@ -115,22 +116,24 @@ export class ReaderSettingsOverlay extends React.Component<
   }
 
   private saveAndUpdateState(newSettings: ReaderSettings) {
-    localStorage.setItem(STORAGE_READER_SETTINGS, JSON.stringify(newSettings));
     this.setState({ settings: newSettings });
+    localforage.setItem(STORAGE_READER_SETTINGS, newSettings);
   }
 }
 
-export function getCurrentReaderSettings(): ReaderSettings {
-  const _items = localStorage.getItem(STORAGE_READER_SETTINGS);
+export async function getCurrentReaderSettings() {
+  try {
+    const _items = await localforage.getItem<ReaderSettings>(
+      STORAGE_READER_SETTINGS
+    );
 
-  if (_items === null) {
+    if (_items === null) {
+      return createDefaultReaderSettings();
+    }
+
+    // _items can be null
+    return _items;
+  } catch {
     return createDefaultReaderSettings();
   }
-
-  //http://feeds.foxnews.com/foxnews/latest
-
-  // http://rss.cnn.com/rss/cnn_topstories.rss
-
-  const items = JSON.parse(_items) as ReaderSettings;
-  return items;
 }

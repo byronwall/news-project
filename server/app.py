@@ -11,6 +11,11 @@ import urllib.parse
 import time
 import calendar
 
+from cachetools import TTLCache
+
+story_data_cache = TTLCache(maxsize=100, ttl=3600)  # stories last for 1 hour
+feed_data_cache = TTLCache(maxsize=100, ttl=600)  # feeds are stored for 10 minutes
+
 
 def ticks():
     return (datetime.now() - datetime(1, 1, 1)).total_seconds() * 10000000
@@ -21,6 +26,7 @@ CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
 # https%3A%2F%2Fwww.buzzfeednews.com%2Farticle%2Fkarlazabludovsky%2Fcoronavirus-ecuador-guayaquil
+
 
 @app.route("/")
 @app.route("/story/<path:url>")
@@ -36,27 +42,38 @@ def story():
     url = request.json["url"]
     url = urllib.parse.unquote(url)
 
-    print("get story", url)
-    article = newspaper.Article(url)
+    # attempt to hit the cache first
 
-    data = {"title": "error"}
-
-    # will sometimes get an error on the download step, need to ignore
     try:
-        article.download()
-        article.parse()
-
-        data = {
-            "title": article.title,
-            "text": article.text,
-            "url": url,
-        }
+        cached_story = story_data_cache[url]
+        cached_story["is_cached"] = True
+        return jsonify(cached_story)
 
     except:
-        print("error processing page", url, flush=True)
-        pass
 
-    return jsonify(data)
+        print("get story", url)
+        article = newspaper.Article(url)
+
+        data = {"title": "error"}
+
+        # will sometimes get an error on the download step, need to ignore
+        try:
+            article.download()
+            article.parse()
+
+            data = {
+                "title": article.title,
+                "text": article.text,
+                "url": url,
+            }
+
+            story_data_cache[url] = data
+
+        except:
+            print("error processing page", url, flush=True)
+            pass
+
+        return jsonify(data)
 
 
 @app.route("/api/feed_update", methods=["POST"])
@@ -74,22 +91,34 @@ def update():
 
     for feed in all_feeds:
 
-        d = feedparser.parse(feed["url"])
+        url = feed["url"]
 
-        for entry in d.entries:
+        # attempt to load story list from cache
+        try:
+            cached_feed_list = feed_data_cache[url]
 
-            # print(entry.keys())
+            all_stories = all_stories + cached_feed_list
+            print("cache hit", url, flush=True)
 
-            timestamp = entry.get("published_parsed")
-            raw_timestamp = timestamp
+        except:
 
-            if timestamp is None:
-                timestamp = 0
-            else:
-                timestamp = calendar.timegm(timestamp)
+            d = feedparser.parse(url)
 
-            all_stories.append(
-                {
+            feed_stories = []
+
+            for entry in d.entries:
+
+                # print(entry.keys())
+
+                timestamp = entry.get("published_parsed")
+                raw_timestamp = timestamp
+
+                if timestamp is None:
+                    timestamp = 0
+                else:
+                    timestamp = calendar.timegm(timestamp)
+
+                feed_result = {
                     "url": entry.link,
                     "title": entry.title,
                     "id": str(ticks()),
@@ -97,7 +126,11 @@ def update():
                     "raw_date": raw_timestamp,
                     "raw_data": entry,
                 }
-            )
+
+                feed_stories.append(feed_result)
+
+            feed_data_cache[url] = feed_stories
+            all_stories = all_stories + feed_stories
 
     return jsonify(all_stories)
 

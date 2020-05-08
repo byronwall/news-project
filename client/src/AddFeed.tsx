@@ -2,6 +2,8 @@ import { Button, H2, H3, InputGroup } from "@blueprintjs/core";
 import { handleStringChange } from "@blueprintjs/docs-theme";
 import React from "react";
 import _ from "lodash";
+import localforage from "localforage";
+import { DH_UNABLE_TO_CHECK_GENERATOR } from "constants";
 
 interface AddFeedState {
   url: string;
@@ -28,8 +30,8 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
     this.loadFeedsFromLocalStorage();
   }
 
-  loadFeedsFromLocalStorage() {
-    const items = getCurrentFeeds();
+  async loadFeedsFromLocalStorage() {
+    const items = await getCurrentFeeds();
     this.setState({ allFeeds: items });
   }
 
@@ -94,7 +96,7 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
         <div>
           <H3>all feeds</H3>
           {this.state.allFeeds.map((feed) => (
-            <p key={feed.url}>
+            <p key={feed.url} style={{ wordWrap: "break-word" }}>
               <Button
                 icon="cross"
                 minimal
@@ -130,23 +132,24 @@ export class AddFeed extends React.Component<{}, AddFeedState> {
     this.saveAndUpdateState(newFeedsList);
   }
 
-  private saveAndUpdateState(newFeedsList: Feed[]) {
-    localStorage.setItem(FEED_STORAGE_NAME, JSON.stringify(newFeedsList));
+  private saveAndUpdateState(_newFeedsList: Feed[]) {
+    const newFeedsList = _.uniqBy(_newFeedsList, (c) => c.url);
+
     this.setState({ allFeeds: newFeedsList });
+    localforage.setItem(FEED_STORAGE_NAME, newFeedsList);
   }
 }
 
-export function getCurrentFeeds() {
-  const _items = localStorage.getItem(FEED_STORAGE_NAME);
+export async function getCurrentFeeds() {
+  try {
+    const _items = await localforage.getItem<Feed[]>(FEED_STORAGE_NAME);
 
-  if (_items === null) {
+    if (_items === null) {
+      return [];
+    }
+
+    return _items;
+  } catch {
     return [];
   }
-
-  //http://feeds.foxnews.com/foxnews/latest
-
-  // http://rss.cnn.com/rss/cnn_topstories.rss
-
-  const items = JSON.parse(_items) as Feed[];
-  return items;
 }

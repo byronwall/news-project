@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import { timeSince } from "./helpers";
-import { getReadStoryList } from "./localStorage";
+import { getReadStoryList, ReadStoryHash } from "./localStorage";
 import _ from "lodash";
 
 interface StoryListProps {
@@ -17,17 +17,27 @@ export interface Story {
   date: any;
 }
 
-export class StoryList extends React.Component<StoryListProps, {}> {
+interface StoryListState {
+  readStories: ReadStoryHash;
+}
+
+export class StoryList extends React.Component<StoryListProps, StoryListState> {
   constructor(props: StoryListProps) {
     super(props);
+
+    this.state = { readStories: {} };
   }
-  componentDidMount() {}
+  async componentDidMount() {
+    const readStories = await getReadStoryList();
+
+    this.setState({ readStories });
+  }
   render() {
     if (this.props.stories.length === 0) {
       return <div>refresh stories or add a feed to get started</div>;
     }
 
-    const readStories = getReadStoryList();
+    const readStories = this.state.readStories;
 
     console.log("read stories", readStories);
 
@@ -49,6 +59,7 @@ export class StoryList extends React.Component<StoryListProps, {}> {
                   <Link
                     to={`/story/${encodeURIComponent(story.url)}`}
                     style={{ color: isReadStory ? "#686868" : undefined }}
+                    target="blank"
                   >
                     <b>{story.title}</b>
                     <span> {timeSince(story.date)}</span>

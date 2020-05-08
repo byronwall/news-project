@@ -1,19 +1,28 @@
+import localforage from "localforage";
+
+export type ReadStoryHash = { [url: string]: number };
+
 const LOCAL_READ_STORIES = "STORIES_READ";
-export function getReadStoryList() {
-  const _item = localStorage.getItem(LOCAL_READ_STORIES);
-  if (_item === null) {
+export async function getReadStoryList() {
+  try {
+    const readStories = await localforage.getItem<ReadStoryHash>(
+      LOCAL_READ_STORIES
+    );
+    if (readStories === null) {
+      return {};
+    }
+
+    return readStories;
+  } catch {
     return {};
   }
-  const readStories = JSON.parse(_item);
-
-  return readStories;
 }
 
-export function addStoryToReadList(url: string) {
-  const allStories = getReadStoryList();
+export async function addStoryToReadList(url: string) {
+  const allStories = await getReadStoryList();
 
   const newVal = allStories[url] ?? 0;
   allStories[url] = newVal + 1;
 
-  localStorage.setItem(LOCAL_READ_STORIES, JSON.stringify(allStories));
+  localforage.setItem(LOCAL_READ_STORIES, allStories);
 }

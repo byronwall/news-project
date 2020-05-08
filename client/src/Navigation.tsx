@@ -37,6 +37,7 @@ export class Navigation extends React.Component<NavigationProps> {
               icon="refresh"
               onClick={this.props.onRefreshCommand}
               intent="primary"
+              large
               minimal
             />
           ) : (

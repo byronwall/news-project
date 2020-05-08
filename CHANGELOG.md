@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.3 - 2020-05-07 22:44:12
+
+- Open links from the StoryList on their on tab - avoid scrolling issues for now
+- Add support for caching of reed results - save for 10 minutes
+- Add support for caching of story data - save for 1 hour
+
+## 1.0.3 - 2020-05-06 23:08:15
+
+- Ensure only unique feeds are saved
+- Switch to `localforage` for local saving and use async/await. Should allow larger saves on mobile.
+
 ## 1.0.2 - 2020-05-05 22:06:34
 
 - Wrap a try/catch around article parsing error to prevent server hanging
