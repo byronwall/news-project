@@ -2,7 +2,7 @@
 
 ## 1.0.3 - 2020-05-07 22:44:12
 
-- Open links from the StoryList on their on tab - avoid scrolling issues for now
+- Open links from the StoryList on their own tab - avoid scrolling issues for now
 - Add support for caching of reed results - save for 10 minutes
 - Add support for caching of story data - save for 1 hour
 
